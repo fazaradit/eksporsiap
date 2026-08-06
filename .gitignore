@@ -1,0 +1,4 @@
+.env
+database/data/
+db_data/
+vendor/
