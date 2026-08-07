@@ -10,12 +10,8 @@ services:
       - "8000:80"
     volumes:
       - .:/var/www/html
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_DATABASE=eksporsiap
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
+    env_file:
+      - .env
     depends_on:
       - db
 
