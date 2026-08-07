@@ -48,7 +48,18 @@ class HsCodeRetrieval {
             }
         }
 
-        return array_values($uniqueResults);
+        $finalResults = array_values($uniqueResults);
+
+        $topScore = $finalResults[0]['skor_similarity'] ?? 0;
+        $lowConfidenceWarning = null;
+        if ($topScore < 0.75) {
+            $lowConfidenceWarning = "Skor kemiripan tertinggi rendah (" . round($topScore, 2) . "). Produk kemungkinan di luar cakupan kategori Bab 19-21 yang didukung sistem ini saat MVP, atau deskripsi produk perlu diperjelas.";
+        }
+
+        return [
+            'kandidat' => $finalResults,
+            'peringatan' => $lowConfidenceWarning
+        ];
     }
 
     private function generateEmbedding(string $text): array {

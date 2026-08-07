@@ -15,7 +15,7 @@ if (file_exists($complianceFile)) {
     $handle = fopen($complianceFile, "r");
     fgetcsv($handle, 1000, ";"); // Skip header
     
-    $stmt = $db->prepare("INSERT INTO compliance_checklist (negara, kategori_dokumen, deskripsi, wajib_opsional, catatan, sumber_referensi) VALUES (:negara, :kategori_dokumen, :deskripsi, :wajib_opsional, :catatan, :sumber_referensi)");
+    $stmt = $db->prepare("INSERT INTO compliance_checklist (negara, kategori_dokumen, deskripsi, wajib_opsional, catatan, sumber_referensi) VALUES (:negara, :kategori_dokumen, :deskripsi, :wajib_opsional, :catatan, :sumber_referensi) ON CONFLICT (negara, kategori_dokumen) DO UPDATE SET deskripsi = EXCLUDED.deskripsi, wajib_opsional = EXCLUDED.wajib_opsional, catatan = EXCLUDED.catatan, sumber_referensi = EXCLUDED.sumber_referensi");
     
     while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
         if (count($data) < 6) continue;

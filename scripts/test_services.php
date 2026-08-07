@@ -9,7 +9,13 @@ try {
     $input_produk = "Kopi arabika robusta biji mentah";
     echo "Mencari HS Code untuk: \"$input_produk\"\n";
     
-    $results = $hsService->retrieve($input_produk);
+    $response = $hsService->retrieve($input_produk);
+    $results = $response['kandidat'];
+    $peringatan = $response['peringatan'];
+    
+    if ($peringatan) {
+        echo "⚠️ PERINGATAN: " . $peringatan . "\n\n";
+    }
     
     if (empty($results)) {
         echo "Tidak ada hasil ditemukan (Mungkin database kosong/belum diimport)\n";
