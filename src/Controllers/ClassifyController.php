@@ -4,6 +4,7 @@ require_once __DIR__ . '/../Services/HsCodeRetrieval.php';
 require_once __DIR__ . '/../Services/ComplianceChecklistService.php';
 
 class ClassifyController {
+    const MIN_RELEVANCE_SCORE = 0.60;
     
     public function classify() {
         header('Content-Type: application/json');
@@ -40,12 +41,26 @@ class ClassifyController {
             $hsService = new HsCodeRetrieval();
             $hsResult = $hsService->retrieve($deskripsi);
             
+            $kandidat = $hsResult['kandidat'] ?? [];
+            $peringatan = $hsResult['peringatan'] ?? null;
+            
+            $topScore = !empty($kandidat) ? ($kandidat[0]['skor_similarity'] ?? 0) : 0;
+            
+            if (empty($kandidat) || $topScore < self::MIN_RELEVANCE_SCORE) {
+                echo json_encode([
+                    'status' => 'tidak_terdeteksi',
+                    'pesan' => 'Deskripsi produk tidak terdeteksi sebagai kategori pangan olahan yang valid. Silakan masukkan deskripsi produk yang lebih spesifik.',
+                    'kandidat_hs_code' => [],
+                    'checklist_dokumen' => [],
+                    'ringkasan' => null,
+                    'peringatan_confidence' => null
+                ]);
+                return;
+            }
+            
             // 3. Retrieval checklist dokumen
             $complianceService = new ComplianceChecklistService();
             $checklist = $complianceService->getByCountry($negaraTujuan);
-            
-            $kandidat = $hsResult['kandidat'] ?? [];
-            $peringatan = $hsResult['peringatan'] ?? null;
             
             $jumlahWajib = count(array_filter($checklist, function($c) {
                 return strtolower($c['wajib_opsional']) === 'wajib';
@@ -55,6 +70,7 @@ class ClassifyController {
             $ringkasanData = $this->generateSummary($kandidat, $peringatan, $jumlahWajib, $negaraTujuan);
             
             echo json_encode([
+                'status' => 'berhasil',
                 'kandidat_hs_code' => $kandidat,
                 'peringatan_confidence' => $peringatan,
                 'checklist_dokumen' => $checklist,

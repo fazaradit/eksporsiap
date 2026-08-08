@@ -63,6 +63,7 @@ if ($page !== 'home') {
         
         .alert-warning { background-color: #FFF5F5; color: var(--stempel-merah); padding: 16px; border-radius: 4px; margin-bottom: 24px; font-weight: 600; display: flex; align-items: flex-start; gap: 12px; border: 2px solid var(--stempel-merah); }
         .alert-error { background-color: #FFF5F5; color: var(--stempel-merah); padding: 16px; border-radius: 4px; margin-bottom: 24px; font-weight: 600; border: 1px solid var(--stempel-merah); }
+        .alert-info { background-color: #F8FAFC; color: var(--text-main); padding: 16px; border-radius: 4px; margin-bottom: 24px; font-weight: 500; display: flex; align-items: flex-start; gap: 12px; border: 1px solid var(--border); }
         
         #result-area { border-top: 2px dashed var(--border); padding-top: 32px; margin-top: 8px; }
         
@@ -137,17 +138,24 @@ if ($page !== 'home') {
             <span style="font-size: 1.25rem;">⚠️</span>
             <span id="warning-text"></span>
         </div>
-
-        <div class="summary-box">
-            <h3>Ringkasan Analisis AI</h3>
-            <p id="summary-text"></p>
+        
+        <div id="info-banner" class="alert-info hidden">
+            <span style="font-size: 1.25rem;">ℹ️</span>
+            <span id="info-text"></span>
         </div>
 
-        <h3 class="section-title">Kandidat Klasifikasi HS Code</h3>
-        <div id="hs-candidates"></div>
-
-        <h3 class="section-title">Syarat Dokumen Kepatuhan</h3>
-        <div id="compliance-checklist" class="card" style="padding: 0 24px;"></div>
+        <div id="success-sections">
+            <div class="summary-box">
+                <h3>Ringkasan Analisis AI</h3>
+                <p id="summary-text"></p>
+            </div>
+    
+            <h3 class="section-title">Kandidat Klasifikasi HS Code</h3>
+            <div id="hs-candidates"></div>
+    
+            <h3 class="section-title">Syarat Dokumen Kepatuhan</h3>
+            <div id="compliance-checklist" class="card" style="padding: 0 24px;"></div>
+        </div>
         
     </div>
 </div>
@@ -199,16 +207,30 @@ function renderResults(data) {
     const resultArea = document.getElementById('result-area');
     const warningBanner = document.getElementById('warning-banner');
     const warningText = document.getElementById('warning-text');
+    const infoBanner = document.getElementById('info-banner');
+    const infoText = document.getElementById('info-text');
+    const successSections = document.getElementById('success-sections');
     const summaryText = document.getElementById('summary-text');
     const hsContainer = document.getElementById('hs-candidates');
     const checklistContainer = document.getElementById('compliance-checklist');
+    
+    // Reset displays
+    warningBanner.classList.add('hidden');
+    infoBanner.classList.add('hidden');
+    successSections.classList.remove('hidden');
+
+    if (data.status === 'tidak_terdeteksi') {
+        infoText.textContent = data.pesan;
+        infoBanner.classList.remove('hidden');
+        successSections.classList.add('hidden');
+        resultArea.classList.remove('hidden');
+        return;
+    }
     
     // Warning
     if (data.peringatan_confidence) {
         warningText.textContent = data.peringatan_confidence;
         warningBanner.classList.remove('hidden');
-    } else {
-        warningBanner.classList.add('hidden');
     }
     
     // Summary
