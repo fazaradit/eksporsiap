@@ -52,8 +52,9 @@ if ($page !== 'home') {
         
         .form-group { margin-bottom: 1.5rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main); }
-        textarea, select { width: 100%; padding: 0.875rem; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem; background-color: #FAFAFA; transition: border-color 0.2s; }
-        textarea:focus, select:focus { outline: none; border-color: var(--text-main); }
+        textarea, select, input[type="text"], input[type="number"] { width: 100%; padding: 0.875rem; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem; background-color: #FAFAFA; transition: border-color 0.2s; }
+        textarea:focus, select:focus, input:focus { outline: none; border-color: var(--text-main); }
+        .optional-label { font-weight: normal; color: var(--text-muted); font-size: 0.9em; margin-left: 4px; }
         
         button { background-color: var(--text-main); color: white; border: none; padding: 1rem 1.5rem; border-radius: 4px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; transition: opacity 0.2s; font-family: 'Roboto Slab', serif; letter-spacing: 0.05em; text-transform: uppercase; }
         button:hover { opacity: 0.9; }
@@ -120,6 +121,35 @@ if ($page !== 'home') {
                 <label for="deskripsi_produk">Deskripsi Produk</label>
                 <textarea id="deskripsi_produk" rows="3" placeholder="Contoh: kerupuk udang kemasan plastik 250gr" style="font-family: 'JetBrains Mono', monospace;" required></textarea>
             </div>
+            
+            <div class="form-group">
+                <label for="komposisi">Komposisi Utama <span class="optional-label">(Opsional)</span></label>
+                <input type="text" id="komposisi" placeholder="Contoh: udang 60%, tepung tapioka 40%" style="font-family: 'JetBrains Mono', monospace;">
+            </div>
+            
+            <div class="form-group">
+                <label for="jenis_kemasan">Jenis Kemasan <span class="optional-label">(Opsional)</span></label>
+                <select id="jenis_kemasan" style="font-family: 'JetBrains Mono', monospace;">
+                    <option value="(Tidak diisi)" selected>(Tidak diisi)</option>
+                    <option value="Plastik">Plastik</option>
+                    <option value="Kaleng">Kaleng</option>
+                    <option value="Kardus">Kardus</option>
+                    <option value="Vakum">Vakum</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="berat">Berat Bersih per Kemasan <span class="optional-label">(Opsional)</span></label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="number" id="berat" placeholder="Contoh: 250" style="font-family: 'JetBrains Mono', monospace; flex: 1;" min="0" step="any">
+                    <select id="satuan_berat" style="font-family: 'JetBrains Mono', monospace; width: 120px;">
+                        <option value="gram" selected>gram</option>
+                        <option value="kg">kg</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="negara_tujuan">Negara Tujuan Ekspor</label>
                 <select id="negara_tujuan" required>
@@ -166,6 +196,10 @@ document.getElementById('classify-form').addEventListener('submit', async functi
     
     const deskripsi = document.getElementById('deskripsi_produk').value.trim();
     const negara = document.getElementById('negara_tujuan').value;
+    const komposisi = document.getElementById('komposisi').value.trim();
+    const jenis_kemasan = document.getElementById('jenis_kemasan').value;
+    const berat = document.getElementById('berat').value.trim();
+    const satuan_berat = document.getElementById('satuan_berat').value;
     
     if (!deskripsi || !negara) return;
 
@@ -183,7 +217,14 @@ document.getElementById('classify-form').addEventListener('submit', async functi
         const response = await fetch('/api/classify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ deskripsi_produk: deskripsi, negara_tujuan: negara })
+            body: JSON.stringify({ 
+                deskripsi_produk: deskripsi, 
+                negara_tujuan: negara,
+                komposisi: komposisi,
+                jenis_kemasan: jenis_kemasan,
+                berat: berat,
+                satuan_berat: satuan_berat
+            })
         });
         
         const data = await response.json();

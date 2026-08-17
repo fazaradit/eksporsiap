@@ -19,6 +19,10 @@ class ClassifyController {
         
         $deskripsi = trim($input['deskripsi_produk'] ?? '');
         $negara = trim($input['negara_tujuan'] ?? '');
+        $komposisi = trim($input['komposisi'] ?? '');
+        $jenis_kemasan = trim($input['jenis_kemasan'] ?? '');
+        $berat = trim($input['berat'] ?? '');
+        $satuan_berat = trim($input['satuan_berat'] ?? '');
         
         if (empty($deskripsi)) {
             http_response_code(400);
@@ -35,11 +39,22 @@ class ClassifyController {
         
         // Kapitalisasi yang benar untuk lookup database (Malaysia / Jepang)
         $negaraTujuan = ucfirst($negaraLower);
+        
+        $teksLengkap = $deskripsi;
+        if (!empty($komposisi)) {
+            $teksLengkap .= ". Komposisi: " . $komposisi;
+        }
+        if (!empty($jenis_kemasan) && $jenis_kemasan !== '(Tidak diisi)') {
+            $teksLengkap .= ". Kemasan: " . $jenis_kemasan;
+        }
+        if (!empty($berat)) {
+            $teksLengkap .= ", berat " . $berat . " " . $satuan_berat;
+        }
 
         try {
             // 2. Retrieval kandidat HS Code
             $hsService = new HsCodeRetrieval();
-            $hsResult = $hsService->retrieve($deskripsi);
+            $hsResult = $hsService->retrieve($teksLengkap);
             
             $kandidat = $hsResult['kandidat'] ?? [];
             $peringatan = $hsResult['peringatan'] ?? null;
