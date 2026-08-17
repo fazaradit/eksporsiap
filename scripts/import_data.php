@@ -50,7 +50,7 @@ if (file_exists($hsCodeFile)) {
         $handle = fopen($hsCodeFile, "r");
         fgetcsv($handle, 1000, ";"); // Skip header
         
-        $stmtInsert = $db->prepare("INSERT INTO hs_code_reference (hs_code, deskripsi_resmi, bab, kata_kunci_produk, embedding) VALUES (:hs_code, :deskripsi_resmi, :bab, :kata_kunci_produk, :embedding)");
+        $stmtInsert = $db->prepare("INSERT INTO hs_code_reference (hs_code, deskripsi_resmi, bab, kata_kunci_produk, embedding) VALUES (:hs_code, :deskripsi_resmi, :bab, :kata_kunci_produk, :embedding) ON CONFLICT (hs_code, kata_kunci_produk) DO UPDATE SET deskripsi_resmi = EXCLUDED.deskripsi_resmi, bab = EXCLUDED.bab, embedding = EXCLUDED.embedding");
         
         while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
             if (count($data) < 4) continue;
