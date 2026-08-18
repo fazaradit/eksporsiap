@@ -26,7 +26,10 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      # Mount folder database agar semua file .sql (000-005) dieksekusi otomatis saat init db.
+      # File .csv (seed_hs_code.csv & seed_compliance_checklist.csv) di dalam folder 
+      # ini otomatis diabaikan oleh PostgreSQL karena bukan script .sql atau .sh.
+      - ./database:/docker-entrypoint-initdb.d
 
 volumes:
   db_data:
