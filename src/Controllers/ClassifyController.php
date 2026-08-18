@@ -100,7 +100,7 @@ class ClassifyController {
     }
 
     private function generateSummary(array $kandidat, ?string $peringatan, int $jumlahWajib, string $negara): array {
-        $llmModel = getenv('LLM_MODEL') ?: 'gemini-1.5-flash';
+        $llmModel = getenv('LLM_MODEL') ?: 'gemini-3.6-flash';
         $apiKey = getenv('EMBEDDING_API_KEY'); // Gunakan key yang sama
         
         if (empty($apiKey)) {
